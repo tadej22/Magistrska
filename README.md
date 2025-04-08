@@ -1,4 +1,7 @@
 # Magistrska
 
 ## Namestitev potrebnih knjižnic
-`poetry install --no-root`
+`poetry install`
+
+## Aktivacija virtualnega okolja
+`poetry shell`
