@@ -34,16 +34,16 @@ class FairClassifierV5(BaseEstimator, ClassifierMixin):
         self.clf_kwargs = kwargs
         self._classes = None
 
-    def fit(self, X_A, y):
+    def fit(self, X_Z, y):
         """
         Fits the model to the provided data, training one model per sensitive group.
 
         Parameters
         __________
-        X_A : tuple (`X`, `A`)
+        X_Z : tuple (`X`, `Z`)
             X : {array-like, sparse matrix} of shape (n_samples, n_features).
-            A : {array-like} of shape (n_samples,) (1-dimensional array-like object)
-            Tuple that consists of features (`X`) and sensitive features (`A`).
+            Z : {array-like} of shape (n_samples,) (1-dimensional array-like object)
+            Tuple that consists of features (`X`) and sensitive features (`Z`).
 
         y : {array-like} of shape (n_samples,)
             The target labels.
@@ -54,21 +54,21 @@ class FairClassifierV5(BaseEstimator, ClassifierMixin):
             Returns the fitted instance of custom classifier itself.
         """
 
-        # Check if X_A tuple has 2 elements (X and A)
-        if not (isinstance(X_A, tuple) and len(X_A) == 2):
-            raise ValueError("X_A must be a tuple with exactly two elements: (X, A).")
-        X, A = X_A
-        # Check if A is a 1D array
-        if not (isinstance(A, (list, tuple, np.ndarray, pd.Series)) and np.ndim(A) == 1):
-            raise ValueError("The sensitive attribute A must be a 1-dimensional array-like object.")
+        # Check if X_Z tuple has 2 elements (X and Z)
+        if not (isinstance(X_Z, tuple) and len(X_Z) == 2):
+            raise ValueError("X_Z must be a tuple with exactly two elements: (X, Z).")
+        X, Z = X_Z
+        # Check if Z is a 1D array
+        if not (isinstance(Z, (list, tuple, np.ndarray, pd.Series)) and np.ndim(Z) == 1):
+            raise ValueError("The sensitive attribute Z must be a 1-dimensional array-like object.")
 
-        sensitive_values = np.unique(A)  # Unique categories of the sensitive variable
+        sensitive_values = np.unique(Z)  # Unique categories of the sensitive variable
         self._classes = np.unique(y)  # Unique target classes in training data
 
         for value in sensitive_values:
             # Filtering the data for the current sensitive group
-            X_group = X[A == value]
-            y_group = y[A == value]
+            X_group = X[Z == value]
+            y_group = y[Z == value]
 
             # Training a model for the current sensitive group
             model = self.clf_type(**self.clf_kwargs)

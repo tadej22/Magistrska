@@ -9,10 +9,10 @@ class BaseCustomScaler(BaseEstimator, TransformerMixin):
 
     This class wraps around a scikit-learn scaler (e.g., `MinMaxScaler`, `StandardScaler`)
     to allow transformations on features (`X_data`) while keeping additional metadata
-    (e.g., sensitive attributes `A_data`) unmodified and returned alongside the scaled features.
+    (e.g., sensitive attributes `Z_data`) unmodified and returned alongside the scaled features.
     Useful for including it as a step inside scikit-learn `Pipeline` together with custom fairness-aware
     estimators, where methods like `fit` and `transform` need to operate on both the feature data
-    (`X_data`) and sensitive attributes (`A_data`).
+    (`X_data`) and sensitive attributes (`Z_data`).
 
     Parameters
     ----------
@@ -42,9 +42,9 @@ class BaseCustomScaler(BaseEstimator, TransformerMixin):
 
         Parameters
         ----------
-        X : tuple (`X_data`, `A_data`)
+        X : tuple (`X_data`, `Z_data`)
             X_data : {array-like, sparse matrix} of shape (n_samples, n_features).
-            Tuple that consists of features (`X_data`) and sensitive features (`A_data`).
+            Tuple that consists of features (`X_data`) and sensitive features (`Z_data`).
             Present for compatibility with scikit-learn custom fairness-aware estimators.
             The scaler is fitted on the feature data (`X_data`).
 
@@ -57,37 +57,37 @@ class BaseCustomScaler(BaseEstimator, TransformerMixin):
             Fitted scaler.
         """
 
-        X_data, A_data = X
+        X_data, Z_data = X
         self.scaler = self.scaler_class(**self.scaler_kwargs)
         self.scaler.fit(X_data, y)
         return self
 
     def transform(self, X):
         """
-        Transforms the feature data (`X_data`) using the fitted scaler while preserving metadata (`A_data`).
+        Transforms the feature data (`X_data`) using the fitted scaler while preserving metadata (`Z_data`).
 
         Parameters
         ----------
-        X : array-like or tuple (`X_data`, `A_data`)
+        X : array-like or tuple (`X_data`, `Z_data`)
             - If array-like: Treated as X_data: {array-like, sparse matrix} of shape (n_samples, n_features).
-            - If tuple: Tuple that consists of features (`X_data`) and sensitive features (`A_data`).
+            - If tuple: Tuple that consists of features (`X_data`) and sensitive features (`Z_data`).
             Present for compatibility with scikit-learn custom fairness-aware estimators.
             The data (`X_data`) used to scale along the features axis.
 
         Returns
         -------
         If input was tuple:
-        (`X_data`, `A_data`) : tuple
-            Tuple of transformed array of features (`X_data`) and preserved sensitive features (`A_data`).
+        (`X_data`, `Z_data`) : tuple
+            Tuple of transformed array of features (`X_data`) and preserved sensitive features (`Z_data`).
         If input was array-like:
         `X_data` : array-like
             Transformed array of features.
         """
 
         if isinstance(X, tuple):
-            X_data, A_data = X
+            X_data, Z_data = X
             X_scaled = self.scaler.transform(X_data)
-            return X_scaled, A_data
+            return X_scaled, Z_data
         else:
             return self.scaler.transform(X)
 
@@ -97,9 +97,9 @@ class BaseCustomScaler(BaseEstimator, TransformerMixin):
 
         Parameters
         ----------
-        X : tuple (`X_data`, `A_data`)
+        X : tuple (`X_data`, `Z_data`)
             X_data : {array-like, sparse matrix} of shape (n_samples, n_features).
-            Tuple that consists of features (`X_data`) and sensitive features (`A_data`).
+            Tuple that consists of features (`X_data`) and sensitive features (`Z_data`).
             Present for compatibility with scikit-learn custom fairness-aware estimators.
 
         y : None
@@ -110,8 +110,8 @@ class BaseCustomScaler(BaseEstimator, TransformerMixin):
 
         Returns
         -------
-        (`X_data`, `A_data`) : tuple
-            Tuple of transformed array (`X_data`) and preserved sensitive features (`A_data`).
+        (`X_data`, `Z_data`) : tuple
+            Tuple of transformed array (`X_data`) and preserved sensitive features (`Z_data`).
         """
 
         return self.fit(X, y).transform(X)
